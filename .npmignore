@@ -1,0 +1,6 @@
+*.ts
+*.tgz
+tslint.json
+tsconfig.json
+
+!*.d.ts

@@ -1,0 +1,39 @@
+{
+    "name": "myalgo-ts",
+    "version": "1.0.17",
+    "description": "A collection of algorithms and data structure for my personal use.",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "type-check": "tsc --noEmit -watch",
+        "clean": "rimraf dist",
+        "test": "jest",
+        "watch": "jest --watch"
+    },
+    "author": "Alfred Chan",
+    "license": "MIT",
+    "jest": {
+        "moduleFileExtensions": [
+            "ts",
+            "js"
+        ],
+        "transform": {
+            "^.+\\.(ts|tsx)$": "ts-jest"
+        },
+        "globals": {
+            "ts-jest": {
+                "tsConfigFile": "tsconfig.json"
+            }
+        },
+        "testMatch": [
+            "**/?(*.)(spec|test).ts?(x)"
+        ]
+    },
+    "devDependencies": {
+        "@types/jest": "^23.1.5",
+        "jest": "^23.4.0",
+        "rimraf": "^2.6.2",
+        "ts-jest": "^23.0.0",
+        "typescript": "^2.9.2"
+    }
+}
