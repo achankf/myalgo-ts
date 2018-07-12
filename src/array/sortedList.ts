@@ -3,8 +3,10 @@ import { mergeK } from "../comparison/merge";
 import { MyIterable } from "../iter";
 
 /**
- * A sorted list, only valid as long as the data aren't mutated outside. It
+ * A sorted list, only valid as long as data mutation doesn't affect toKey()'s return values. It
  * performs lazy insertion, at the cost of other operations, which potentially leads binary merges (think merge sort).
+ * Readings are as fast as binary search can offer.
+ * Using this structure either if you need to frequent writes or freqent reads, but not both.
  */
 export class SortedList<T, U> extends MyIterable<T> {
 
