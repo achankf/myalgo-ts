@@ -240,22 +240,22 @@ export abstract class MyIterable<T> implements IMyIterator<T> {
  * @param count number of items to generate
  */
 export function genBy<T>(generator: (i: number) => T) {
-    const gen = function* genByHelper() {
+    function* genByHelper() {
         for (let i = 0; true; i++) {
             yield generator(i);
         }
-    };
-    return toIt(gen());
+    }
+    return toIt(genByHelper());
 }
 
 /** Repeat the given value indefinitely. */
 export function repeat<T>(t: T) {
-    const gen = function* repeatHelper() {
+    function* repeatHelper() {
         while (true) {
             yield t;
         }
-    };
-    return toIt(gen());
+    }
+    return toIt(repeatHelper());
 }
 
 /**

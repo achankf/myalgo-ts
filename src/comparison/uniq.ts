@@ -7,7 +7,7 @@ import { toIt } from "../iter";
  */
 export function uniq<T>(sortedVals: T[], cmp: (a: T, b: T) => number) {
 
-    const gen = function* uniqHelper() {
+    function* uniqHelper() {
         if (sortedVals.length === 0) {
             return;
         }
@@ -20,7 +20,7 @@ export function uniq<T>(sortedVals: T[], cmp: (a: T, b: T) => number) {
             }
         }
         yield cur; // either the last value is unique, or the previous value is not unique but haven't reported
-    };
+    }
 
-    return toIt(gen());
+    return toIt(uniqHelper());
 }
