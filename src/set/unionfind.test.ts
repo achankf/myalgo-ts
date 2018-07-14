@@ -1,4 +1,4 @@
-import { arrayEqual } from "../comparison/equality";
+import { listEqual } from "../comparison/cmpList";
 import { UnionFind } from "./unionfind";
 
 test("identity", () => {
@@ -167,17 +167,17 @@ test("get", () => {
     const set = new UnionFind<number>().union(...a).union(...b).union(...c);
 
     expect(
-        arrayEqual((x, y) => x - y,
+        listEqual((x, y) => x - y,
             Array.from(set.get(1)).sort(),
             a)).toBeTruthy();
 
     expect(
-        arrayEqual((x, y) => x - y,
+        listEqual((x, y) => x - y,
             Array.from(set.get(11)).sort(),
             b)).toBeTruthy();
 
     expect(
-        arrayEqual((x, y) => x - y,
+        listEqual((x, y) => x - y,
             Array.from(set.get(111)).sort(),
             c)).toBeTruthy();
 });
@@ -191,17 +191,17 @@ test("deleteSets", () => {
     const set = new UnionFind<number>().union(...a).union(...b).union(...c);
 
     expect(
-        arrayEqual((x, y) => x - y,
+        listEqual((x, y) => x - y,
             Array.from(set.get(1)).sort(),
             a)).toBeTruthy();
 
     expect(
-        arrayEqual((x, y) => x - y,
+        listEqual((x, y) => x - y,
             Array.from(set.get(11)).sort(),
             b)).toBeTruthy();
 
     expect(
-        arrayEqual((x, y) => x - y,
+        listEqual((x, y) => x - y,
             Array.from(set.get(111)).sort(),
             c)).toBeTruthy();
 
@@ -211,7 +211,7 @@ test("deleteSets", () => {
     expect(c.every((t) => !set.has(t))).toBeTruthy();
 
     expect(
-        arrayEqual((x, y) => x - y,
+        listEqual((x, y) => x - y,
             Array.from(set.get(11)).sort(),
             b)).toBeTruthy();
 });

@@ -2,7 +2,7 @@ export * from "./array/minheap";
 export * from "./array/sortedList";
 export * from "./boundary";
 export * from "./comparison/binarySearch";
-export * from "./comparison/equality";
+export * from "./comparison/cmpList";
 export * from "./comparison/isSorted";
 export * from "./comparison/merge";
 export * from "./comparison/uniq";

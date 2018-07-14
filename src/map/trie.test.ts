@@ -1,9 +1,9 @@
-import { arrayEqual } from "../comparison/equality";
+import { listEqual } from "../comparison/cmpList";
 import { Trie } from "./trie";
 
-function compareTrieWithInput<KeyT extends any[], ValT>(
-    input: Array<[KeyT, ValT]>,
-    trie: Trie<KeyT, ValT>) {
+function compareTrieWithInput<K extends any[], V>(
+    input: Array<[K, V]>,
+    trie: Trie<K, V>) {
 
     expect(trie.size()).toBe(input.length);
 
@@ -13,7 +13,7 @@ function compareTrieWithInput<KeyT extends any[], ValT>(
     }
 
     for (const [key, value] of trie) {
-        const [, got] = input.find(([key2]) => arrayEqual((a, b) => a === b ? 0 : undefined, key, key2))!;
+        const [, got] = input.find(([key2]) => listEqual((a, b) => a === b ? 0 : undefined, key, key2))!;
         expect(got).toBe(value);
     }
 }

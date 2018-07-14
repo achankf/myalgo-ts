@@ -1,5 +1,5 @@
 import { genBy } from "../iter";
-import { arrayDiff, arrayEqual } from "./equality";
+import { listDiff, listEqual } from "./cmpList";
 import { isSorted } from "./isSorted";
 import { mergeK } from "./merge";
 
@@ -32,13 +32,13 @@ test("base case (one element)", () => {
     const list3 = [3];
     const list4 = [4];
     const ret = mergeK(toKey, cmp, list1, list2, list3, list4);
-    expect(arrayEqual(cmp, ret, [1, 2, 3, 4])).toBeTruthy();
+    expect(listEqual(cmp, ret, [1, 2, 3, 4])).toBeTruthy();
 });
 
 test("base case (1 list)", () => {
     const list1 = listGen().inject()!;
     const ret = mergeK(toKey, cmp, list1);
-    expect(arrayEqual(cmp, ret, list1)).toBeTruthy();
+    expect(listEqual(cmp, ret, list1)).toBeTruthy();
 });
 
 test("base case (2 lists)", () => {
@@ -54,7 +54,7 @@ test("base case (2 lists)", () => {
     expect(ret.length).toBe(2 * len);
 
     const sorted = list1.concat(list2).sort();
-    expect(arrayDiff(cmp, ret, sorted)).toBeUndefined();
+    expect(listDiff(cmp, ret, sorted)).toBeUndefined();
 });
 
 test("base case (n list)", () => {
