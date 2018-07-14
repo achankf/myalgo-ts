@@ -66,6 +66,11 @@ export class SortedTrie<K, Ks extends K[], V> extends MyIterable<[Ks, V]> {
             .map(([, val]) => val);
     }
 
+    /** Create a new sorted trie with the same comparator as this instance (use this when you usually want clear()). */
+    public makeEmpty = () => {
+        return new SortedTrie<K, Ks, V>(this.cmp);
+    }
+
     protected iterate = () => {
         return SortedTrie.iterateHelper(this.cmp, this.data);
     }
