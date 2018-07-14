@@ -1,10 +1,11 @@
 {
     "name": "myalgo-ts",
-    "version": "1.0.17",
+    "version": "1.0.19",
     "description": "A collection of algorithms and data structure for my personal use.",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
+        "build": "tsc",
         "type-check": "tsc --noEmit -watch",
         "clean": "rimraf dist",
         "test": "jest",
@@ -34,6 +35,6 @@
         "jest": "^23.4.0",
         "rimraf": "^2.6.2",
         "ts-jest": "^23.0.0",
-        "typescript": "^2.9.2"
+        "typescript": "^3.0.0-rc"
     }
 }

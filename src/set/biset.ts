@@ -1,4 +1,4 @@
-import { MyIterable } from "../iter";
+import { MyIterable, toIt } from "../iter";
 
 /**
  * Bi-direction set, based on two Map objects. Use this class for data that has a bijective relationship.
@@ -60,12 +60,12 @@ export class BiSet<T, U> extends MyIterable<[T, U]>  {
 
     /** Get all items in the left set. */
     public lefts() {
-        return this.leftMap.keys();
+        return toIt(this.leftMap.keys());
     }
 
     /** Get all items in the right set. */
     public rights() {
-        return this.rightMap.keys();
+        return toIt(this.rightMap.keys());
     }
 
     protected iterate = () => {

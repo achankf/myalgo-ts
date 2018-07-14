@@ -6,21 +6,20 @@ import { toIt } from "../iter";
  * @param cmp the comparator
  */
 export function uniq<T>(sortedVals: T[], cmp: (a: T, b: T) => number) {
+    return toIt(uniqHelper(sortedVals, cmp));
+}
 
-    function* uniqHelper() {
-        if (sortedVals.length === 0) {
-            return;
-        }
-
-        let cur = sortedVals[0];
-        for (const val of sortedVals) {
-            if (cmp(val, cur) !== 0) {
-                yield cur;
-                cur = val;
-            }
-        }
-        yield cur; // either the last value is unique, or the previous value is not unique but haven't reported
+function* uniqHelper<T>(sortedVals: T[], cmp: (a: T, b: T) => number) {
+    if (sortedVals.length === 0) {
+        return;
     }
 
-    return toIt(uniqHelper());
+    let cur = sortedVals[0];
+    for (const val of sortedVals) {
+        if (cmp(val, cur) !== 0) {
+            yield cur;
+            cur = val;
+        }
+    }
+    yield cur; // either the last value is unique, or the previous value is not unique but haven't reported
 }

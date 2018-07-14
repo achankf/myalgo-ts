@@ -1,4 +1,4 @@
-import { MyIterable } from "../iter";
+import { MyIterable, toIt } from "../iter";
 
 /**
  * Union-find data structure with path compression. Deletion of a single element uses
@@ -115,23 +115,8 @@ export class UnionFind<T> extends MyIterable<Set<T>> {
     }
 
     /** Retrieve the entire set belonging to t using the naive algorithm, results are memoized internally. */
-    public *get(t: T) {
-        const result = this.find(t);
-        if (result === undefined) { // element doesn't exist
-            return;
-        }
-        const [parent] = result;
-        if (this.memoizedSets === undefined) {
-            this.memoizedSets = this.aggregate();
-        }
-        const rets = this.memoizedSets.get(parent);
-
-        if (rets === undefined) {
-            return;
-        }
-        for (const s of rets) {
-            yield s;
-        }
+    public get(t: T) {
+        return toIt(this.getHelper(t));
     }
 
     /** Test whether t is in the set */
@@ -159,6 +144,25 @@ export class UnionFind<T> extends MyIterable<Set<T>> {
             }
         }
         return ret;
+    }
+
+    private *getHelper(t: T) {
+        const result = this.find(t);
+        if (result === undefined) { // element doesn't exist
+            return;
+        }
+        const [parent] = result;
+        if (this.memoizedSets === undefined) {
+            this.memoizedSets = this.aggregate();
+        }
+        const rets = this.memoizedSets.get(parent);
+
+        if (rets === undefined) {
+            return;
+        }
+        for (const s of rets) {
+            yield s;
+        }
     }
 
     /** Find the item or add it to its own set */

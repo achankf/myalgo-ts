@@ -1,3 +1,5 @@
+import { toIt } from "../iter";
+
 /**
  * Breadth First, pre-order Traversal
  * @param root the root node
@@ -8,8 +10,14 @@
 export function* bfsPreOrder<T>(
     root: T,
     neighbours: (vertex: T) => IterableIterator<T>,
-): IterableIterator<[T, number]> {
+) {
+    return toIt(bfsPreOrderHelper(root, neighbours));
+}
 
+function* bfsPreOrderHelper<T>(
+    root: T,
+    neighbours: (vertex: T) => IterableIterator<T>,
+): IterableIterator<[T, number]> {
     const workList: Array<[T, number]> = [[root, 0]];
     const visited = new Set<T>();
 

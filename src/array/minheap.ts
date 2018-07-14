@@ -1,4 +1,4 @@
-import { MyIterable } from "../iter";
+import { MyIterable, toIt } from "../iter";
 
 /**
  * Array-based binary heap.
@@ -95,7 +95,8 @@ export class MinHeap<T> extends MyIterable<T> {
      * This operation doesn't mutate the heap but a slice of the sorted data will be created.
      */
     public sort = () => {
-        return sort(this.arr.slice(), this.cmp);
+        const ret = this.sortHelper();
+        return toIt(ret);
     }
 
     /**
@@ -108,7 +109,11 @@ export class MinHeap<T> extends MyIterable<T> {
     }
 
     protected iterate = (): IterableIterator<T> => {
-        return this.sort();
+        return this.sortHelper();
+    }
+
+    private sortHelper = () => {
+        return sort(this.arr.slice(), this.cmp);
     }
 }
 

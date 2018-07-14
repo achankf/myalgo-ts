@@ -11,6 +11,15 @@ This is a collection of somewhat generic algorithms that are written in Typescri
     - absolutely need to store derived data
 
 # Install
-```
+```bash
 npm install myalgo-ts
 ```
+
+# Build
+```bash
+npm run install
+npm run clean
+npm run test #optional
+npm run build
+```
+Note: at the time of writing, this library is built using the dev version of Typescript, because it fixed [this bug](https://github.com/Microsoft/TypeScript/issues/25511).
