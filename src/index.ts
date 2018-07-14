@@ -13,6 +13,7 @@ export * from "./graph/kruskalMST";
 export * from "./graph/stableMarriage";
 export * from "./iter";
 export * from "./map/mapIter";
+export * from "./map/sortedTrie";
 export * from "./map/trie";
 export * from "./math2D";
 export * from "./memo";
