@@ -72,6 +72,9 @@ test("add", () => {
     for (const num of random(1234)) {
         heap.add(num);
     }
+    if (!isSorted(heap, cmp)) {
+        console.log(Array.from(heap));
+    }
     expect(isSorted(heap, cmp)).toBeTruthy();
 });
 

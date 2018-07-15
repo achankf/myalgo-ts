@@ -82,6 +82,7 @@ export class MinHeap<T> extends MyIterable<T> {
         let first = 0;
         let last = sorted.length - 1;
 
+        // reverse the reverse-sorted array
         while (first < last) {
             swap(sorted, first, last);
             ++first;
@@ -133,12 +134,8 @@ function heapifyArray<T>(arr: T[], cmp: (a: T, b: T) => number) {
     return arr;
 }
 
-function ancestor(n: number, k: number) {
-    return n === 0 ? 0 : Math.floor((n + 1) / Math.pow(2, k)) - 1;
-}
-
 function parent(n: number) {
-    return ancestor(n, 1);
+    return Math.floor((n + 1) / 2) - 1;
 }
 
 function leftChild(i: number) {
@@ -152,11 +149,13 @@ function swap<T>(arr: T[], i: number, j: number) {
 }
 
 // pop swaps the root to the end of the array; caller is responsible for memeory management
+// not handling memory here because pop() is crucial for the in-place sort
 function pop<T>(arr: T[], length: number, cmp: (a: T, b: T) => number) {
     const lenMinus = length - 1;
     if (length === 0) {
         return;
     } else if (length === 1) {
+        // since this method only does swapping in arr, there's no need to swap when arr only has 1 item
         return arr[lenMinus];
     }
 
@@ -166,79 +165,45 @@ function pop<T>(arr: T[], length: number, cmp: (a: T, b: T) => number) {
     return ret;
 }
 
-function bubbleDown<T>(arr: T[], start: number, length: number, cmp: (a: T, b: T) => number) {
-    const root = arr[start];
-    let i = start; // iterator starting at the root node defined by start
+function bubbleDown<T>(arr: T[], startIdx: number, length: number, cmp: (a: T, b: T) => number) {
+    const itemVal = arr[startIdx];
+    let prev = startIdx; // iterator starting at the root node defined by start
     while (true) {
-        let candidate = leftChild(i);
+        let candidate = leftChild(prev);
         if (candidate >= length) { // left-child doesn't exist
-            break;
+            break; // implied that right child doesn't exist too
         }
 
+        // children found, pick the lowest of the 2 children
         const left = arr[candidate];
         const rightIdx = candidate + 1;
         if (rightIdx < length && // right-child exists and
             cmp(arr[rightIdx], left) < 0 // right child is less than left-child
         ) {
-            candidate++;
+            candidate = rightIdx; // pick the right child
         }
 
-        if (cmp(root, arr[candidate]) < 0) {
-            break;
+        // compare "me" with the lowest child
+        if (cmp(itemVal, arr[candidate]) < 0) {
+            break; // "I" am the lowest
         }
 
-        swap(arr, i, candidate);
-        i = candidate;
+        swap(arr, prev, candidate);
+        prev = candidate;
     }
 }
 
-// O(loglog n) comparisons to look for number of ancestors to be swapped
-// ... not that it's an optimization or anything, it's just a copy-paste
-// from my homework back in school
-function numAncestorsToBeSwapped<T>(arr: T[], start: number, cmp: (a: T, b: T) => number) {
-    if (start === 0) {
-        return 0;
-    }
+function bubbleUp<T>(arr: T[], startIdx: number, cmp: (a: T, b: T) => number) {
 
-    let high = Math.floor(Math.log2(start));
-    let cur = start;
-    let low = 0;
-    let pivot: number; // # ancestors away from start
+    console.assert(startIdx === arr.length - 1);
 
-    // binary search on a branch of heap -- O(lglg n) comparisions
-    while (true) {
-        pivot = Math.floor((high + low) / 2);
-        if (high < low) {
-            break;
+    // keep swapping with ancestors if the given item is smaller than them
+    let cur = startIdx;
+    while (cur > 0) {
+        const par = parent(cur);
+        if (cmp(arr[cur], arr[par]) < 0) {
+            swap(arr, cur, par);
         }
-        cur = ancestor(start, pivot);
-
-        const order = cmp(arr[start], arr[cur]);
-        if (order < 0) {
-            low = pivot + 1;
-        } else if (order > 0) {
-            high = pivot - 1;
-        } else {
-            break;
-        }
-    }
-
-    // pivot + boundary case adjustment
-    if (cmp(arr[start], arr[parent(cur)]) < 0) {
-        return pivot + 1;
-    }
-    return pivot;
-}
-
-function bubbleUp<T>(arr: T[], start: number, cmp: (a: T, b: T) => number) {
-
-    const num = numAncestorsToBeSwapped(arr, start, cmp);
-    let it = start;
-    let par;
-
-    for (let i = 0; i < num; i++) {
-        par = parent(it);
-        swap(arr, it, par);
-        it = par;
+        cur = par;
     }
 }
