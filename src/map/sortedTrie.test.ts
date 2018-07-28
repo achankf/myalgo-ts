@@ -6,14 +6,14 @@ const cmp1 = (a: number, b: number) => a - b;
 
 test("base case", () => {
     const t = new SortedTrie<number, number[], boolean>(cmp1);
-    expect(t.isEmpty()).toBeTruthy();
-    expect(t.size()).toBe(0);
+    expect(t.isEmpty).toBeTruthy();
+    expect(t.size).toBe(0);
 });
 
 test("base case", () => {
     const t = new SortedTrie<number, number[], boolean>(cmp1);
-    expect(t.isEmpty()).toBeTruthy();
-    expect(t.size()).toBe(0);
+    expect(t.isEmpty).toBeTruthy();
+    expect(t.size).toBe(0);
 
     const list1 = [1, 2, 3, 4, 5, 6, 7, 8];
     t.set(list1, true);

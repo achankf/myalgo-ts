@@ -34,9 +34,9 @@ export class SortedTrie<K, Ks extends K[], V> extends MyIterable<[Ks, V]> {
         ]));
     }
 
-    public size = () => this.data.size();
+    public get size() { return this.data.size; }
 
-    public isEmpty = () => this.data.isEmpty();
+    public get isEmpty() { return this.size === 0; }
 
     public get = (key: Ks) => {
         return this.data.get(SortedTrie.sortKey(this.cmp, key));

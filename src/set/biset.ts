@@ -16,9 +16,7 @@ export class BiSet<T, U> extends MyIterable<[T, U]>  {
     }
 
     /** Return the number of items in the set. */
-    public size() {
-        return this.leftMap.size;
-    }
+    public get size() { return this.leftMap.size; }
 
     /** Add a new pair to the map. */
     public add(left: T, right: U) {

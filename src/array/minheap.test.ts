@@ -5,10 +5,10 @@ import { MinHeap } from "./minheap";
 const cmp = (a: number, b: number) => a - b;
 
 function checkEmpty<T>(heap: MinHeap<T>) {
-    expect(heap.peek()).toBeUndefined();
-    expect(heap.peek()).toBeUndefined();
-    expect(heap.isEmpty()).toBeTruthy();
-    expect(heap.size()).toBe(0);
+    expect(heap.top).toBeUndefined();
+    expect(heap.top).toBeUndefined();
+    expect(heap.isEmpty).toBeTruthy();
+    expect(heap.size).toBe(0);
     expect(heap.pop()).toBeUndefined();
 }
 
@@ -48,7 +48,7 @@ test("heapify, pop, add", () => {
     for (const num of random(len)) {
         heap.add(num);
     }
-    expect(heap.size()).toBe(len);
+    expect(heap.size).toBe(len);
     expect(isSorted(heap, cmp)).toBeTruthy();
 });
 
@@ -61,7 +61,7 @@ test("heapify, add, pop", () => {
     for (const num of random(len)) {
         heap.add(num);
     }
-    expect(heap.size()).toBe(len + base.length);
+    expect(heap.size).toBe(len + base.length);
     expect(isSorted(heap, cmp)).toBeTruthy();
 });
 
@@ -86,13 +86,13 @@ test("(peek pop size empty) base case", () => {
 test("peek pop size empty", () => {
     const len = 1234;
     const heap = MinHeap.heapify(cmp, ...random(len));
-    expect(heap.isEmpty()).toBeFalsy();
-    expect(heap.size()).toBe(len);
+    expect(heap.isEmpty).toBeFalsy();
+    expect(heap.size).toBe(len);
 
     heap.add(-1); // lowest number
-    expect(heap.peek()).toBe(-1);
+    expect(heap.top).toBe(-1);
     expect(isSorted(heap, cmp)).toBeTruthy();
-    expect(heap.peek()).toBe(-1);
+    expect(heap.top).toBe(-1);
     expect(heap.pop()).toBe(-1);
 
     for (let i = 0; i < len; i++) {
@@ -104,13 +104,13 @@ test("peek pop size empty", () => {
 test("sort", () => {
     const len = 1234;
     const heap = MinHeap.heapify(cmp, ...random(len));
-    expect(heap.isEmpty()).toBeFalsy();
-    expect(heap.size()).toBe(len);
+    expect(heap.isEmpty).toBeFalsy();
+    expect(heap.size).toBe(len);
 
     heap.add(-1); // lowest number
-    expect(heap.peek()).toBe(-1);
+    expect(heap.top).toBe(-1);
     expect(isSorted(heap, cmp)).toBeTruthy();
-    expect(heap.peek()).toBe(-1);
+    expect(heap.top).toBe(-1);
     expect(heap.pop()).toBe(-1);
 
     for (const n of heap.sort()) {
@@ -121,13 +121,13 @@ test("sort", () => {
 test("reverseSort", () => {
     const len = 1234;
     const heap = MinHeap.heapify(cmp, ...random(len));
-    expect(heap.isEmpty()).toBeFalsy();
-    expect(heap.size()).toBe(len);
+    expect(heap.isEmpty).toBeFalsy();
+    expect(heap.size).toBe(len);
 
     heap.add(-1); // lowest number
-    expect(heap.peek()).toBe(-1);
+    expect(heap.top).toBe(-1);
     expect(isSorted(heap, cmp)).toBeTruthy();
-    expect(heap.peek()).toBe(-1);
+    expect(heap.top).toBe(-1);
     expect(heap.pop()).toBe(-1);
     const highToLow = heap.reverseSort();
     expect(isSorted(highToLow.reverse(), cmp));
@@ -139,16 +139,16 @@ test("reverseSort", () => {
 test("in-place sort", () => {
     const len = 1234;
     const heap = MinHeap.heapify(cmp, ...random(len));
-    expect(heap.isEmpty()).toBeFalsy();
-    expect(heap.size()).toBe(len);
+    expect(heap.isEmpty).toBeFalsy();
+    expect(heap.size).toBe(len);
 
     heap.add(-1); // lowest number
-    expect(heap.peek()).toBe(-1);
+    expect(heap.top).toBe(-1);
     expect(isSorted(heap, cmp)).toBeTruthy();
-    expect(heap.peek()).toBe(-1);
-    expect(heap.size()).toBe(len + 1);
+    expect(heap.top).toBe(-1);
+    expect(heap.size).toBe(len + 1);
     expect(heap.pop()).toBe(-1);
-    expect(heap.size()).toBe(len);
+    expect(heap.size).toBe(len);
 
     const lowToHigh = heap.sortInPlace();
     expect(lowToHigh.length).toBe(len);

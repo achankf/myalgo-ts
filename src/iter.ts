@@ -28,11 +28,6 @@ export interface IMyIterator<T> extends Iterable<T> {
     forEach: (callBackFn: (t: T, i: number) => boolean | undefined) => void;
 
     /**
-     * Test if the iterator is empty.
-     */
-    isEmpty: () => boolean;
-
-    /**
      * Map the values of the iterator by a mapper.
      */
     map: <U>(mapper: (t: T, i: number) => U) => IMyIterator<U>;
@@ -135,13 +130,6 @@ function* filter<T>(it: Iterable<T>, pred: (t: T, i: number) => boolean) {
     }
 }
 
-function isEmpty<T>(it: Iterable<T>) {
-    for (const _ of it) {
-        return false;
-    }
-    return true;
-}
-
 function* pin<T, U>(it: Iterable<T>, hammer: (prev: T, cur: T) => U) {
     let isFirst = true;
     let prev: T;
@@ -182,7 +170,6 @@ export function toIt<T>(it: Iterable<T>): IMyIterator<T> {
         filter: (pred: (t: T, i: number) => boolean) => toIt(filter(it, pred)),
         forEach: (callBackFn: (t: T, i: number) => boolean | undefined) => forEach(it, callBackFn),
         inject: () => inject(it),
-        isEmpty: () => isEmpty(it),
         map: <U>(mapper: (t: T, i: number) => U) => toIt(map(it, mapper)),
         pin: <U>(hammer: (prev: T, cur: T) => U) => toIt(pin(it, hammer)),
         reduce: <U>(reducer: (acc: U, cur: T, i: number) => U, base: U) => reduce(it, reducer, base),
@@ -209,8 +196,6 @@ export abstract class MyIterable<T> implements IMyIterator<T> {
 
     public inject = () => inject(this);
 
-    public isEmpty = () => isEmpty(this);
-
     public map = <U>(mapper: (t: T, i: number) => U) => toIt(map(this, mapper));
 
     public pin = <U>(hammer: (prev: T, cur: T) => U) => toIt(pin(this, hammer));
@@ -232,6 +217,10 @@ export abstract class MyIterable<T> implements IMyIterator<T> {
             yield t;
         }
     }
+
+    public abstract get size(): number;
+
+    public get isEmpty() { return this.size === 0; }
 }
 
 /**

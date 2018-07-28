@@ -43,10 +43,7 @@ export class MinHeap<T> extends MyIterable<T> {
     }
 
     /** Returns the number of items in the heap */
-    public size = () => this.arr.length;
-
-    /** Tests whether the heap is empty */
-    public isEmpty = () => this.size() === 0;
+    public get size() { return this.arr.length; }
 
     /** Remove the most important (minimum) item in the heap. This action mutates the heap. */
     public pop = () => {
@@ -57,7 +54,7 @@ export class MinHeap<T> extends MyIterable<T> {
     }
 
     /** Get the most important (minimum) item in the heap. */
-    public peek = () => this.isEmpty() ? undefined : this.arr[0];
+    public get top() { return this.isEmpty ? undefined : this.arr[0]; }
 
     /**
      * Sort the collection in reverse order (i.e. low-to-high priority of MIN

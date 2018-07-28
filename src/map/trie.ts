@@ -71,7 +71,9 @@ export class Trie<K extends any[], V>
     }
 
     /** Return the number of items the trie */
-    public size = () => this.trieSize;
+    public get size() { return this.trieSize; }
+
+    public get isEmpty() { return this.size === 0; }
 
     public get = (key: K) => {
         const node = this.traverse(key);

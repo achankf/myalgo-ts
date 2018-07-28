@@ -137,7 +137,7 @@ test("iterator", () => {
     const totalSize = set
         .map((ts) => ts.size)
         .reduce((acc, x) => acc + x, 0);
-    expect(totalSize).toBe(set.size());
+    expect(totalSize).toBe(set.size);
 
     // test reduce()
     const totalSize2 = set.reduce((acc, ts) => acc + ts.size, 0);

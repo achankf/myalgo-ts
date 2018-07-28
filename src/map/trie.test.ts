@@ -5,7 +5,7 @@ function compareTrieWithInput<K extends any[], V>(
     input: Array<[K, V]>,
     trie: Trie<K, V>) {
 
-    expect(trie.size()).toBe(input.length);
+    expect(trie.size).toBe(input.length);
 
     for (const [key, value] of input) {
         const got = trie.get(key);
@@ -20,8 +20,8 @@ function compareTrieWithInput<K extends any[], V>(
 
 test("base case", () => {
     const t = new Trie<[number, number], boolean>();
-    expect(t.isEmpty()).toBeTruthy();
-    expect(t.size()).toBe(0);
+    expect(t.isEmpty).toBeTruthy();
+    expect(t.size).toBe(0);
 });
 
 test("small list", () => {
@@ -50,24 +50,24 @@ test("small list", () => {
 
     compareTrieWithInput(input1, t);
 
-    expect(t.size()).toBe(7);
+    expect(t.size).toBe(7);
     expect(t.getFanout([])).toBe(3); // 1, 7, "abc"
     expect(t.delete([])).toBeTruthy();
-    expect(t.size()).toBe(6);
+    expect(t.size).toBe(6);
     expect(t.getFanout([])).toBe(3); // 1, 7, "abc"
     expect(t.delete([1])).toBeTruthy();
-    expect(t.size()).toBe(5);
+    expect(t.size).toBe(5);
     expect(t.getFanout([])).toBe(3); // 1, 7, "abc"
     expect(t.getFanout([1])).toBe(1); // 2
     expect(t.delete([1, 2, 3])).toBeTruthy();
-    expect(t.size()).toBe(4);
+    expect(t.size).toBe(4);
     expect(t.getFanout([1])).toBe(1); // 2
     expect(t.delete([1, 2, 3, 4])).toBeTruthy();
-    expect(t.size()).toBe(3);
+    expect(t.size).toBe(3);
     expect(t.getFanout([])).toBe(2); // 7, "abc"
     expect(t.getFanout([1])).toBe(0);
     expect(!t.delete([1, 2, 3, 4])).toBeTruthy();
-    expect(t.size()).toBe(3);
+    expect(t.size).toBe(3);
     expect(!t.delete(["abc"])).toBeTruthy();
-    expect(t.size()).toBe(3);
+    expect(t.size).toBe(3);
 });

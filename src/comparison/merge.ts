@@ -50,7 +50,7 @@ export function mergeK<T, U>(
         ret.push(lst[idx]);
         const next = idx + 1;
 
-        if (heap.size() === 0) {
+        if (heap.size === 0) {
             return next < lst.length ?
                 ret.concat(lst.slice(next)) :
                 ret;

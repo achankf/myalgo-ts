@@ -60,7 +60,7 @@ export class SortedList<T, U> extends MyIterable<T> {
      * Return the [low index, high index] of all items within the boundary.
      */
     public range = (bound1: U, bound2: U) => {
-        if (this.isEmpty()) {
+        if (this.isEmpty) {
             return undefined;
         }
         return range(this.getData(), bound1, bound2, this.toKey, this.cmp);
@@ -70,9 +70,9 @@ export class SortedList<T, U> extends MyIterable<T> {
         return this.search(key) !== undefined;
     }
 
-    public size = () => this.data.length + this.pendList.length;
+    public get size() { return this.data.length + this.pendList.length; }
 
-    public isEmpty = () => this.size() === 0;
+    public get isEmpty() { return this.size === 0; }
 
     public clone = () => SortedList.lightWrap(this.getData().slice(), this.toKey, this.cmp);
 
@@ -138,7 +138,7 @@ export class SortedList<T, U> extends MyIterable<T> {
     /** Delete items specified by the index. */
     public deleteAt = (idx: number, len: number = 1) => {
         if (len >= 1) {
-            if (idx >= 0 && idx < this.size()) {
+            if (idx >= 0 && idx < this.size) {
                 this.getData().splice(idx, len); // this.getData() would possibly perform sort and merge
             }
         }

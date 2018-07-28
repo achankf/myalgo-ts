@@ -40,7 +40,7 @@ export function stableMarriage<Man, Woman>(
     while (freeMen.length > 0) {
         const man = freeMen.pop()!;
         const priority = candidates.get(man)!;
-        while (!priority.isEmpty()) {
+        while (!priority.isEmpty) {
             const topWoman = priority.pop()!;
             const womanPref = women.get(topWoman)!;
             const aPref = womanPref(man);

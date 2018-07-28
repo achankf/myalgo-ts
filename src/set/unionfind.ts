@@ -17,7 +17,7 @@ export class UnionFind<T> extends MyIterable<Set<T>> {
     private memoizedSets?: Map<number, Set<T>>;
 
     /** Get the number of items in this structure. */
-    public size = () => this.toId.size;
+    public get size() { return this.toId.size; }
 
     /** All sets that belong to elements in ts becomes 1 set. */
     public union = (...ts: T[]) => {
@@ -198,12 +198,12 @@ export class UnionFind<T> extends MyIterable<Set<T>> {
         return this;
     }
 
-    private structureSize = () => this.parents.size;
+    private get structureSize() { return this.parents.size; }
 
-    private garbageRatio = () => this.size() === 0 ? 0 : this.structureSize() / this.size();
+    private get garbageRatio() { return this.size === 0 ? 0 : this.structureSize / this.size; }
 
     private recycle = () => {
-        if (this.garbageRatio() < 2) {
+        if (this.garbageRatio < 2) {
             return;
         }
         // otherwise structureSize is twice larger than necessary
