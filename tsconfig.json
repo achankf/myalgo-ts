@@ -5,6 +5,7 @@
     "outDir": "dist",
     "inlineSourceMap": true,
     "declaration": true,
+    "isolatedModules": true,
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
