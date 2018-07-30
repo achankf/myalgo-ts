@@ -25,3 +25,4 @@ export * from "./rand/randomGen";
 export * from "./rand/shuffleSlice";
 export * from "./set/biset";
 export * from "./set/unionfind";
+export * from "./tuple";

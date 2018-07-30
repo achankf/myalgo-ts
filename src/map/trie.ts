@@ -1,5 +1,6 @@
 import { dfsPreOrder } from "../graph/depthFirstTraversal";
 import { MyIterable, toIt } from "../iter";
+import { makePair } from "../tuple";
 import { IMap, IMapAlgo } from "./mapIter";
 
 interface ITrieNode<K extends any[], V> {
@@ -27,7 +28,7 @@ function* entries<K extends any[], V>(root: ITrieNode<K, V>) {
         (me) => me.next.values(), // neighbours of this node
     );
 
-    const key: any[] = [];
+    const key = [];
     let curDepth = 0;
     for (const [node, depth] of allNodes) {
 
@@ -48,7 +49,7 @@ function* entries<K extends any[], V>(root: ITrieNode<K, V>) {
         ++curDepth;
 
         if (node.val !== undefined) {
-            yield [key.slice(), node.val] as [K, V];
+            yield makePair(key.slice() as K, node.val);
         }
     }
 }
