@@ -6,6 +6,7 @@ export * from "./comparison/cmpList";
 export * from "./comparison/isSorted";
 export * from "./comparison/merge";
 export * from "./comparison/uniq";
+export * from "./graph/aStar";
 export * from "./graph/breadthFirstTraversal";
 export * from "./graph/def";
 export * from "./graph/depthFirstTraversal";
