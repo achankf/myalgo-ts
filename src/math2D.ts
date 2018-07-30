@@ -1,50 +1,57 @@
-export function equal([ax, ay]: [number, number], [bx, by]: [number, number]) {
+export type Vec2D = [number, number];
+
+export function equal([ax, ay]: Vec2D, [bx, by]: Vec2D) {
     return ax === bx && ay === by;
 }
 
-export function compare([ax, ay]: [number, number], [bx, by]: [number, number]) {
+export function compare([ax, ay]: Vec2D, [bx, by]: Vec2D) {
     if (ax < bx) { return -1; }
     if (ax > bx) { return 1; }
     return ay - by;
 }
 
-export function subtract([ax, ay]: [number, number], [bx, by]: [number, number]): [number, number] {
+export function subtract([ax, ay]: Vec2D, [bx, by]: Vec2D): Vec2D {
     return [ax - bx, ay - by];
 }
 
-export function add([ax, ay]: [number, number], [bx, by]: [number, number]): [number, number] {
+export function add([ax, ay]: Vec2D, [bx, by]: Vec2D): Vec2D {
     return [ax + bx, ay + by];
 }
 
-export function norm([ax, ay]: [number, number]) {
+export function norm([ax, ay]: Vec2D) {
     return Math.sqrt(ax * ax + ay * ay);
 }
 
-export function distance(a: [number, number], b: [number, number]) {
+export function distance(a: Vec2D, b: Vec2D) {
     return norm(subtract(a, b));
 }
 
-export function scalarMult([ax, ay]: [number, number], scalar: number): [number, number] {
+export function scalarMult([ax, ay]: Vec2D, scalar: number): Vec2D {
     return [scalar * ax, scalar * ay];
 }
 
+export function manhattanDistance(a: Vec2D, b: Vec2D) {
+    const [cx, cy] = subtract(a, b);
+    return Math.abs(cx) + Math.abs(cy);
+}
+
 /** Calculate the projection of a vector by a scalar. */
-export function project(a: [number, number], scalar = 1): [number, number] {
+export function project(a: Vec2D, scalar = 1): Vec2D {
     const n = norm(a);
     console.assert(n !== 0, "caller make sure the given vector is not the origin");
     return scalarMult(a, scalar / n);
 }
 
 /** Calculate the determinant of a 2D matric. */
-export function determinant([ax, ay]: [number, number], [bx, by]: [number, number]) {
+export function determinant([ax, ay]: Vec2D, [bx, by]: Vec2D) {
     return ax * by - bx * ay;
 }
 
 /** Test whether a point P is in the rectangle defined by points A and B. */
 export function isPointInRect(
-    [px, py]: [number, number],
-    [ax, ay]: [number, number],
-    [bx, by]: [number, number],
+    [px, py]: Vec2D,
+    [ax, ay]: Vec2D,
+    [bx, by]: Vec2D,
 ) {
     const maxX = Math.max(ax, bx);
     const minX = Math.min(ax, bx);
@@ -70,9 +77,9 @@ export enum IntersectionKind {
  * @see http://mathworld.wolfram.com/Circle-LineIntersection.html
  */
 export function testLineCircleIntersect(
-    a: [number, number],
-    b: [number, number],
-    c: [number, number],
+    a: Vec2D,
+    b: Vec2D,
+    c: Vec2D,
     r: number,
 ): IntersectionKind {
 
@@ -103,9 +110,9 @@ export function testLineCircleIntersect(
  * @param r the target circle's radius
  */
 export function testLineSegmentCircleIntersect(
-    a: [number, number],
-    b: [number, number],
-    c: [number, number],
+    a: Vec2D,
+    b: Vec2D,
+    c: Vec2D,
     r: number,
 ): IntersectionKind {
     // for finite line segments, test whether the center is within the rectangle defined by a,b

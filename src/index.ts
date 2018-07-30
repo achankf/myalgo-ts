@@ -7,6 +7,7 @@ export * from "./comparison/isSorted";
 export * from "./comparison/merge";
 export * from "./comparison/uniq";
 export * from "./graph/breadthFirstTraversal";
+export * from "./graph/def";
 export * from "./graph/depthFirstTraversal";
 export * from "./graph/floydWarshall";
 export * from "./graph/kruskalMST";
