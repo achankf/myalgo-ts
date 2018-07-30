@@ -17,7 +17,7 @@ export function aStar<T>(
     source: T,
     destination?: T,
     heuristic: (u: T, v: T) => number = () => 0,
-): Map<T, T> {
+): { distance: Map<T, number>, parent: Map<T, T> } {
     /*
     modified from https://www.redblobgames.com/pathfinding/a-star/introduction.html
         frontier = PriorityQueue()
@@ -52,7 +52,7 @@ export function aStar<T>(
         throw new Error("destination is not a node in the graph");
     }
 
-    const dist = new Map<T, number>([[source, 0]]);
+    const distance = new Map<T, number>([[source, 0]]);
     const parent = new Map<T, T>();
 
     const frontier = MinHeap.heapify(([, a], [, b]) => a - b, makePair(source, 0));
@@ -69,8 +69,8 @@ export function aStar<T>(
         }
 
         for (const next of nexts) {
-            const oldDist = dist.get(next);
-            const curDist = dist.get(cur)!;
+            const oldDist = distance.get(next);
+            const curDist = distance.get(cur)!;
             console.assert(curDist !== undefined);
 
             const partDistance = weight(cur, next);
@@ -84,7 +84,7 @@ export function aStar<T>(
                 continue;
             }
 
-            dist.set(next, newDist);
+            distance.set(next, newDist);
             const estimate = destination !== undefined ? heuristic(destination, next) : 0;
 
             if (estimate < 0) {
@@ -96,14 +96,14 @@ export function aStar<T>(
             parent.set(next, cur);
         }
     }
-    return parent;
+    return { distance, parent };
 }
 
-export function extractPath<T>(path: Map<T, T>, source: T, destination: T) {
+export function extractPath<T>(parent: Map<T, T>, source: T, destination: T) {
     let cur = destination;
     const ret: T[] = [];
 
-    if (path.get(cur) === undefined) {
+    if (parent.get(cur) === undefined) {
         return undefined;
     }
 
@@ -112,7 +112,7 @@ export function extractPath<T>(path: Map<T, T>, source: T, destination: T) {
         if (cur === source) {
             return ret;
         }
-        cur = path.get(cur)!;
+        cur = parent.get(cur)!;
         if (cur === undefined) {
             return undefined; // no valid path
         }
