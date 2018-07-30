@@ -14,6 +14,7 @@ export * from "./graph/floydWarshall";
 export * from "./graph/kruskalMST";
 export * from "./graph/stableMarriage";
 export * from "./iter";
+export * from "./map/bimap";
 export * from "./map/mapIter";
 export * from "./map/sortedTrie";
 export * from "./map/trie";
