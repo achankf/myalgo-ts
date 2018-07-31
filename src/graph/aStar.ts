@@ -19,7 +19,7 @@ export function aStar<T>(
     source: T,
     destination?: T,
     heuristic: (u: T, v: T) => number = () => 0,
-): { distance: Map<T, number>, parent: Map<T, T> } {
+): { distance: Map<T, number>, parent: Map<T, T> } | undefined {
     /*
     modified from https://www.redblobgames.com/pathfinding/a-star/introduction.html
         frontier = PriorityQueue()
@@ -44,14 +44,17 @@ export function aStar<T>(
                 came_from[next] = current
     */
 
-    console.assert(source !== destination, "source and destination are the same, what are you searching for?");
-
     if (!vertices.has(source)) {
         throw new Error("source is not a node in the graph");
     }
 
     if (destination !== undefined && !vertices.has(destination)) {
         throw new Error("destination is not a node in the graph");
+    }
+
+    if (source === destination) {
+        console.assert(false, "source and destination are the same, what are you searching for?");
+        return undefined;
     }
 
     const distance = new Map<T, number>([[source, 0]]);
@@ -62,7 +65,7 @@ export function aStar<T>(
     while (!frontier.isEmpty) {
         const [cur] = frontier.pop()!;
         if (destination !== undefined && cur === destination) {
-            break;
+            return { distance, parent };
         }
 
         for (const next of neighbours(cur)) {
@@ -93,7 +96,14 @@ export function aStar<T>(
             parent.set(next, cur);
         }
     }
-    return { distance, parent };
+
+    // return something when doing all-destination search
+    if (destination === undefined) {
+        return { distance, parent };
+    }
+
+    // reach here when doing single-destination search but not found the destination
+    return undefined;
 }
 
 /**

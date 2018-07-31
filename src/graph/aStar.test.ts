@@ -47,7 +47,9 @@ test("base case (simple reachable)", () => {
         [1, [0]],
     ]);
 
-    const { parent: parent1 } = aStarAdjList(graph, () => 1, 0, 1);
+    const search1 = aStarAdjList(graph, () => 1, 0, 1);
+    expect(search1).toBeDefined();
+    const { parent: parent1 } = search1!;
 
     expect(
         listEqual(
@@ -56,7 +58,9 @@ test("base case (simple reachable)", () => {
             [1, 0],
         )).toBeTruthy();
 
-    const { parent: parent2 } = aStarAdjList(graph, () => 1, 1, 0);
+    const search2 = aStarAdjList(graph, () => 1, 1, 0);
+    expect(search2).toBeDefined();
+    const { parent: parent2 } = search2!;
 
     expect(
         listEqual(
@@ -68,12 +72,12 @@ test("base case (simple reachable)", () => {
 
 test("base case (simple unreachable)", () => {
 
-    const { parent } = aStarAdjList(new Map([
+    const graph = new Map([
         [0, [1]],
         [1, []],
-    ]), () => 1, 1, 0);
+    ]);
 
-    expect(extractPath(parent, 1, 0)).toBeUndefined();
+    expect(aStarAdjList(graph, () => 1, 1, 0)).toBeUndefined();
 });
 
 test("base case (same source-destination)", () => {
@@ -85,9 +89,7 @@ test("base case (same source-destination)", () => {
 
     // not an error, but you'll get an assertion error in debug mode
     const sourceDest = 1;
-    const { parent } = aStarAdjList(graph, () => 1, sourceDest, sourceDest);
-
-    expect(extractPath(parent, sourceDest, sourceDest)).toBeUndefined(); // no path needed
+    expect(aStarAdjList(graph, () => 1, sourceDest, sourceDest)).toBeUndefined(); // no path needed
 });
 
 test("uniform cost", () => {
@@ -101,7 +103,9 @@ test("uniform cost", () => {
         [5, [0]],
     ]);
 
-    const { distance, parent } = aStarAdjList(graph, () => 1, 0);
+    const search = aStarAdjList(graph, () => 1, 0);
+    expect(search).toBeDefined();
+    const { distance, parent } = search!;
 
     expect(
         listEqual(
@@ -167,7 +171,9 @@ test("Dijkstra", () => {
         return ret;
     };
 
-    const { distance, parent } = aStarAdjList(graph, weight, 0);
+    const search = aStarAdjList(graph, weight, 0);
+    expect(search).toBeDefined();
+    const { distance, parent } = search!;
 
     expect(
         listEqual(
@@ -201,7 +207,9 @@ test("Dijkstra", () => {
         )).toBeTruthy();
     expect(distance.get(1)).toBe(3);
 
-    const { parent: parent2 } = aStarAdjList(graph, weight, 4);
+    const search2 = aStarAdjList(graph, weight, 4);
+    expect(search2).toBeDefined();
+    const { parent: parent2 } = search2;
     expect(extractPath(parent2, 4, 1)).toBeUndefined();
     expect(extractPath(parent2, 4, 2)).toBeUndefined();
     expect(extractPath(parent2, 4, 3)).toBeUndefined();
@@ -211,7 +219,9 @@ test("Dijkstra", () => {
     expect(extractPath(parent2, 4, 6)).toBeUndefined();
     expect(extractPath(parent2, 4, 7)).toBeUndefined();
 
-    const { parent: parent3 } = aStarAdjList<number>(graph, weight, 6);
+    const search3 = aStarAdjList<number>(graph, weight, 6);
+    expect(search3).toBeDefined();
+    const { parent: parent3 } = search3!;
     expect(extractPath(parent3, 6, 1)).toBeUndefined();
     expect(extractPath(parent3, 6, 2)).toBeUndefined();
     expect(extractPath(parent3, 6, 3)).toBeUndefined();
@@ -270,8 +280,7 @@ test("with heuristic (only test for reachability)", () => {
     const heuristic = (u: number, v: number) => u * v;
 
     function getPath(u: number, v: number) {
-        const { parent } = aStarAdjList(graph, weight, u, v, heuristic);
-        return extractPath(parent, u, v);
+        return aStarAdjList(graph, weight, u, v, heuristic);
     }
 
     expect(getPath(0, 1)).toBeDefined();
