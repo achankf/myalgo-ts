@@ -9,15 +9,15 @@ import { toIt } from "../iter";
  */
 export function dfsPreOrder<T>(
     root: T,
-    neighbours: (vertex: T) => IterableIterator<T>,
+    neighbours: (vertex: T) => Iterable<T>,
 ) {
     return toIt(dfsPreOrderHelper(root, neighbours));
 }
 
 export function* dfsPreOrderHelper<T>(
     root: T,
-    neighbours: (vertex: T) => IterableIterator<T>,
-): IterableIterator<[T, number]> {
+    neighbours: (vertex: T) => Iterable<T>,
+): Iterable<[T, number]> {
     const workList: Array<[T, number]> = [[root, 0]];
     const visited = new Set<T>();
 
