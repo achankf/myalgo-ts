@@ -5,14 +5,16 @@ import { AdjacencyList } from "./def";
 /**
  * The A* pathfinding algorithm. If "to" is left undefined,
  * this method act as Dijkstra's algorithm, searching for all destinations from a single source.
- * @param graph The graph as adjacency list.
+ * @param vertices The set of vertices
+ * @param neighbours The neighbours of a given vertex
  * @param weight The weight function, distance from vertex u to vertex v.
  * @param source The source
  * @param destination The destination, if any
  * @param heuristic The heuristic function for A*
  */
 export function aStar<T>(
-    graph: AdjacencyList<T>,
+    vertices: Set<T>,
+    neighbours: (t: T) => T[],
     weight: (u: T, v: T) => number,
     source: T,
     destination?: T,
@@ -44,11 +46,11 @@ export function aStar<T>(
 
     console.assert(source !== destination, "source and destination are the same, what are you searching for?");
 
-    if (graph.get(source) === undefined) {
+    if (!vertices.has(source)) {
         throw new Error("source is not a node in the graph");
     }
 
-    if (destination !== undefined && graph.get(destination) === undefined) {
+    if (destination !== undefined && !vertices.has(destination)) {
         throw new Error("destination is not a node in the graph");
     }
 
@@ -63,12 +65,7 @@ export function aStar<T>(
             break;
         }
 
-        const nexts = graph.get(cur);
-        if (nexts === undefined) {
-            throw new Error("inconsistent graph -- a vertex appear in edges but is not a key of the adjacency list");
-        }
-
-        for (const next of nexts) {
+        for (const next of neighbours(cur)) {
             const oldDist = distance.get(next);
             const curDist = distance.get(cur)!;
             console.assert(curDist !== undefined);
@@ -97,6 +94,34 @@ export function aStar<T>(
         }
     }
     return { distance, parent };
+}
+
+/**
+ * The A* pathfinding algorithm. If "to" is left undefined,
+ * this method act as Dijkstra's algorithm, searching for all destinations from a single source.
+ * @param graph The graph as adjacency list.
+ * @param weight The weight function, distance from vertex u to vertex v.
+ * @param source The source
+ * @param destination The destination, if any
+ * @param heuristic The heuristic function for A*
+ */
+export function aStarAdjList<T>(
+    graph: AdjacencyList<T>,
+    weight: (u: T, v: T) => number,
+    source: T,
+    destination?: T,
+    heuristic: (u: T, v: T) => number = () => 0,
+) {
+    return aStar(
+        new Set(graph.keys()),
+        (u) => {
+            const edges = graph.get(u);
+            if (edges === undefined) {
+                throw new Error("Inconsistent graph -- graph should at least have an empty array for every vertices");
+            }
+            return edges;
+        },
+        weight, source, destination, heuristic);
 }
 
 export function extractPath<T>(parent: Map<T, T>, source: T, destination: T) {
