@@ -16,12 +16,6 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
   },
-  "exclude": [
-    "**/*.test.ts",
-    "dist",
-    "dist/*.d.ts",
-    "node_modules"
-  ]
 }

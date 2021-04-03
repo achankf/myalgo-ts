@@ -1,270 +1,273 @@
-import { MyIterable, toIt } from "../iter";
+import { assertDefined } from "../assert";
+import { MyIterable, MyIterator, toIt } from "../iter";
 
 /**
  * Union-find data structure with path compression. Deletion of a single element uses
  * the tombstone method, deletion of sets uses brute-force.
  */
 export class UnionFind<T> extends MyIterable<Set<T>> {
+  private toId = new Map<T, number>();
+  private parents = new Map<number, [number, number]>();
+  private id = 0;
 
-    private toId = new Map<T, number>();
-    private parents = new Map<number, [number, number]>();
-    private id = 0;
+  // speed up getSet(); reset when structure is changed (i.e. with recycle(),
+  // union(), delete(), deleteSet(), breakAway()); even though find also
+  // mutate the structure due to path compression, the parent node is
+  // deterministic
+  private memoizedSets?: Map<number, Set<T>>;
 
-    // speed up getSet(); reset when structure is changed (i.e. with recycle(),
-    // union(), delete(), deleteSet(), breakAway()); even though find also
-    // mutate the structure due to path compression, the parent node is
-    // deterministic
-    private memoizedSets?: Map<number, Set<T>>;
+  /** Get the number of items in this structure. */
+  public get size(): number {
+    return this.toId.size;
+  }
 
-    /** Get the number of items in this structure. */
-    public get size() { return this.toId.size; }
+  /** All sets that belong to elements in ts becomes 1 set. */
+  public union = (...ts: T[]): this => {
+    if (ts.length > 0) {
+      const t0 = ts[0];
+      for (let i = 1; i < ts.length; i++) {
+        const ti = ts[i];
+        this.union2(t0, ti);
+      }
+    }
+    return this;
+  };
 
-    /** All sets that belong to elements in ts becomes 1 set. */
-    public union = (...ts: T[]) => {
-        if (ts.length > 0) {
-            const t0 = ts[0];
-            for (let i = 1; i < ts.length; i++) {
-                const ti = ts[i];
-                this.union2(t0, ti);
-            }
-        }
-        return this;
+  /**
+   * Test whether left and right are in the same set.
+   */
+  public isSameSet = (left: T, right: T): boolean => {
+    console.assert(left !== undefined);
+    console.assert(right !== undefined);
+
+    if (left === right) {
+      return true;
     }
 
-    /**
-     * Test whether left and right are in the same set.
-     */
-    public isSameSet = (left: T, right: T) => {
+    const leftRes = this.find(left);
 
-        console.assert(left !== undefined);
-        console.assert(right !== undefined);
-
-        if (left === right) {
-            return true;
-        }
-
-        const leftRes = this.find(left);
-
-        if (leftRes === undefined) {
-            return false;
-        }
-
-        const rightRes = this.find(right);
-
-        if (rightRes === undefined) {
-            return false;
-        }
-
-        const [lParent] = leftRes;
-        const [rParent] = rightRes;
-        return lParent === rParent;
+    if (leftRes === undefined) {
+      return false;
     }
 
-    /** Each item in ts becomes its own set. */
-    public tear = (...ts: T[]) => {
+    const rightRes = this.find(right);
 
-        // just delete the id mapping, parent structure remain the same
-        for (const t of ts) {
-            if (this.toId.delete(t)) {
-                this.memoizedSets = undefined;
-                this.add(t);
-            }
-            // otherwise t is not in the set
-        }
-        this.recycle();
-        return this;
+    if (rightRes === undefined) {
+      return false;
     }
 
-    /** Remove an item. */
-    public delete = (t: T) => {
-        const ret = this.toId.delete(t);
-        if (ret) {
-            this.memoizedSets = undefined;
-        }
-        this.recycle();
-        return ret;
-    }
+    const [lParent] = leftRes;
+    const [rParent] = rightRes;
+    return lParent === rParent;
+  };
 
-    /** Creates a copy of this data structure. */
-    public clone = () => {
-        const ret = new UnionFind<T>();
-        ret.toId = new Map(this.toId);
-        ret.parents = new Map(this.parents);
-        ret.id = this.id;
-        return ret;
-    }
-
-    /**
-     * Delete items based on ts.
-     */
-    public deleteSets = (...ts: T[]) => {
-        let isDeleted = false;
-
-        for (const t of ts) {
-            for (const t1 of this.get(t)) {
-                const id = this.toId.get(t1)!;
-                this.parents.delete(id);
-                this.toId.delete(t1);
-                isDeleted = true;
-            }
-        }
-        if (isDeleted) {
-            this.memoizedSets = undefined;
-        }
-        this.recycle();
-    }
-
-    /** Retrieve the entire set belonging to t using the naive algorithm, results are memoized internally. */
-    public get(t: T) {
-        return toIt(this.getHelper(t));
-    }
-
-    /** Test whether t is in the set */
-    public has = (t: T) => this.find(t) !== undefined;
-
-    protected iterate = () => {
-        // naive algorithm
-
-        if (this.memoizedSets === undefined) {
-            this.memoizedSets = this.aggregate();
-        }
-
-        return this.memoizedSets.values();
-    }
-
-    private aggregate = () => {
-        const ret: Map<number, Set<T>> = new Map();
-        for (const [val, id] of this.toId) {
-            const [parent] = this.findInner(id);
-            const temp = ret.get(parent);
-            if (temp === undefined) {
-                ret.set(parent, new Set([val]));
-            } else {
-                temp.add(val);
-            }
-        }
-        return ret;
-    }
-
-    private *getHelper(t: T) {
-        const result = this.find(t);
-        if (result === undefined) { // element doesn't exist
-            return;
-        }
-        const [parent] = result;
-        if (this.memoizedSets === undefined) {
-            this.memoizedSets = this.aggregate();
-        }
-        const rets = this.memoizedSets.get(parent);
-
-        if (rets === undefined) {
-            return;
-        }
-        for (const s of rets) {
-            yield s;
-        }
-    }
-
-    /** Find the item or add it to its own set */
-    private findMut = (item: T) => {
-        const prev = this.toId.get(item)!;
-        if (prev === undefined) {
-            return this.add(item);
-        }
-        return this.findInner(prev);
-    }
-
-    private union2 = (left: T, right: T) => {
-
-        // sanity check
-        console.assert(left !== undefined);
-        console.assert(right !== undefined);
+  /** Each item in ts becomes its own set. */
+  public tear = (...ts: T[]): this => {
+    // just delete the id mapping, parent structure remain the same
+    for (const t of ts) {
+      if (this.toId.delete(t)) {
         this.memoizedSets = undefined;
-        const [lRoot, lRank] = this.findMut(left);
-        const [rRoot, rRank] = this.findMut(right);
+        this.add(t);
+      }
+      // otherwise t is not in the set
+    }
+    this.recycle();
+    return this;
+  };
 
-        if (lRoot === rRoot) {
-            return this;
-        }
+  /** Remove an item. */
+  public delete = (t: T): boolean => {
+    const isDeleted = this.toId.delete(t);
+    if (isDeleted) {
+      this.memoizedSets = undefined;
+    }
+    this.recycle();
+    return isDeleted;
+  };
 
-        if (lRank < rRank) {
-            this.parents.set(lRoot, [rRoot, lRank]);
-        } else if (lRank > rRank) {
-            this.parents.set(rRoot, [lRoot, rRank]);
-        } else {
-            this.parents.set(lRoot, [rRoot, rRank + 1]);
-        }
-        this.recycle();
-        return this;
+  /** Creates a copy of this data structure. */
+  public clone = (): UnionFind<T> => {
+    const ret = new UnionFind<T>();
+    ret.toId = new Map(this.toId);
+    ret.parents = new Map(this.parents);
+    ret.id = this.id;
+    return ret;
+  };
+
+  /**
+   * Delete items based on ts.
+   */
+  public deleteSets = (...ts: T[]): void => {
+    let isDeleted = false;
+
+    for (const t of ts) {
+      for (const t1 of this.get(t)) {
+        const id = assertDefined(this.toId.get(t1));
+        this.parents.delete(id);
+        this.toId.delete(t1);
+        isDeleted = true;
+      }
+    }
+    if (isDeleted) {
+      this.memoizedSets = undefined;
+    }
+    this.recycle();
+  };
+
+  /** Retrieve the entire set belonging to t using the naive algorithm, results are memoized internally. */
+  public get(t: T): MyIterator<T> {
+    return toIt(this.getHelper(t));
+  }
+
+  /** Test whether t is in the set */
+  public has = (t: T): boolean => this.find(t) !== undefined;
+
+  protected iterate = (): IterableIterator<Set<T>> => {
+    // naive algorithm
+
+    if (this.memoizedSets === undefined) {
+      this.memoizedSets = this.aggregate();
     }
 
-    private get structureSize() { return this.parents.size; }
+    return this.memoizedSets.values();
+  };
 
-    private get garbageRatio() { return this.size === 0 ? 0 : this.structureSize / this.size; }
+  private aggregate = () => {
+    const ret: Map<number, Set<T>> = new Map();
+    for (const [val, id] of this.toId) {
+      const [parent] = this.findInner(id);
+      const temp = ret.get(parent);
+      if (temp === undefined) {
+        ret.set(parent, new Set([val]));
+      } else {
+        temp.add(val);
+      }
+    }
+    return ret;
+  };
 
-    private recycle = () => {
-        if (this.garbageRatio < 2) {
-            return;
-        }
-        // otherwise structureSize is twice larger than necessary
+  private *getHelper(t: T) {
+    const result = this.find(t);
+    if (result === undefined) {
+      // element doesn't exist
+      return;
+    }
+    const [parent] = result;
+    if (this.memoizedSets === undefined) {
+      this.memoizedSets = this.aggregate();
+    }
+    const rets = this.memoizedSets.get(parent);
 
-        this.memoizedSets = undefined;
+    if (rets === undefined) {
+      return;
+    }
+    for (const s of rets) {
+      yield s;
+    }
+  }
 
-        const ret = new UnionFind<T>();
-        for (const ts of this) {
-            const t1 = ts.values().next().value;
-            console.assert(t1 !== undefined); // ts is a grouping of all sets, so each set must have at least 1 element
-            for (const t2 of ts) {
-                ret.union(t1, t2);
-            }
-        }
+  /** Find the item or add it to its own set */
+  private findMut = (item: T) => {
+    const prev = this.toId.get(item);
+    if (prev === undefined) {
+      return this.add(item);
+    }
+    return this.findInner(prev);
+  };
 
-        // simply replace data
-        this.toId = ret.toId;
-        this.parents = ret.parents;
-        this.id = ret.id;
+  private union2 = (left: T, right: T) => {
+    // sanity check
+    console.assert(left !== undefined);
+    console.assert(right !== undefined);
+    this.memoizedSets = undefined;
+    const [lRoot, lRank] = this.findMut(left);
+    const [rRoot, rRank] = this.findMut(right);
+
+    if (lRoot === rRoot) {
+      return this;
     }
 
-    private add = (item: T) => {
-        console.assert(this.toId.get(item) === undefined);
+    if (lRank < rRank) {
+      this.parents.set(lRoot, [rRoot, lRank]);
+    } else if (lRank > rRank) {
+      this.parents.set(rRoot, [lRoot, rRank]);
+    } else {
+      this.parents.set(lRoot, [rRoot, rRank + 1]);
+    }
+    this.recycle();
+    return this;
+  };
 
-        this.memoizedSets = undefined;
-        // set item to be item's parent
-        const id = ++this.id;
-        this.toId.set(item, id);
-        const ret: [number, number] = [id, 0];
-        this.parents.set(id, ret);
+  private get structureSize() {
+    return this.parents.size;
+  }
+
+  private get garbageRatio() {
+    return this.size === 0 ? 0 : this.structureSize / this.size;
+  }
+
+  private recycle = () => {
+    if (this.garbageRatio < 2) {
+      return;
+    }
+    // otherwise structureSize is twice larger than necessary
+
+    this.memoizedSets = undefined;
+
+    const ret = new UnionFind<T>();
+    for (const ts of this) {
+      const t1 = ts.values().next().value;
+      console.assert(t1 !== undefined); // ts is a grouping of all sets, so each set must have at least 1 element
+      for (const t2 of ts) {
+        ret.union(t1, t2);
+      }
+    }
+
+    // simply replace data
+    this.toId = ret.toId;
+    this.parents = ret.parents;
+    this.id = ret.id;
+  };
+
+  private add = (item: T) => {
+    console.assert(this.toId.get(item) === undefined);
+
+    this.memoizedSets = undefined;
+    // set item to be item's parent
+    const id = ++this.id;
+    this.toId.set(item, id);
+    const ret: [number, number] = [id, 0];
+    this.parents.set(id, ret);
+    return ret;
+  };
+
+  private find = (item: T) => {
+    const prev = this.toId.get(item);
+
+    if (prev === undefined) {
+      return undefined;
+    }
+    return this.findInner(prev);
+  };
+
+  private findInner = (targetId: number) => {
+    const path: number[] = [];
+    let prev = targetId;
+    for (;;) {
+      const [parent, rank] = assertDefined(this.parents.get(prev));
+
+      if (prev === parent) {
+        // path compression
+        for (const id of path) {
+          this.parents.set(id, [parent, rank]);
+        }
+        const ret: [number, number] = [parent, rank];
         return ret;
+      }
+
+      // collect ancestors for future path compression
+      path.push(prev);
+      prev = parent;
     }
-
-    private find = (item: T) => {
-        const prev = this.toId.get(item)!;
-
-        if (prev === undefined) {
-            return undefined;
-        }
-        return this.findInner(prev);
-    }
-
-    private findInner = (targetId: number) => {
-        const path: number[] = [];
-        let prev = targetId;
-        while (true) {
-
-            const [parent, rank] = this.parents.get(prev)!;
-
-            if (prev === parent) {
-                // path compression
-                for (const id of path) {
-                    this.parents.set(id, [parent, rank]);
-                }
-                const ret: [number, number] = [parent, rank];
-                return ret;
-            }
-
-            // collect ancestors for future path compression
-            path.push(prev);
-            prev = parent;
-        }
-    }
+  };
 }

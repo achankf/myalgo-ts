@@ -1,6 +1,12 @@
 import { MinHeap } from "../array/minheap";
+import { assertDefined } from "../assert";
 import { makePair } from "../tuple";
 import { AdjacencyList } from "./def";
+
+interface AStarResult<T> {
+  distance: Map<T, number>;
+  parent: Map<T, T>;
+}
 
 /**
  * The A* pathfinding algorithm. If "to" is left undefined,
@@ -13,14 +19,14 @@ import { AdjacencyList } from "./def";
  * @param heuristic The heuristic function for A*
  */
 export function aStar<T>(
-    vertices: Set<T>,
-    neighbours: (t: T) => T[],
-    weight: (u: T, v: T) => number,
-    source: T,
-    destination?: T,
-    heuristic: (u: T, v: T) => number = () => 0,
-): { distance: Map<T, number>, parent: Map<T, T> } | undefined {
-    /*
+  vertices: Set<T>,
+  neighbours: (t: T) => T[],
+  weight: (u: T, v: T) => number,
+  source: T,
+  destination?: T,
+  heuristic: (u: T, v: T) => number = () => 0
+): AStarResult<T> | undefined {
+  /*
     modified from https://www.redblobgames.com/pathfinding/a-star/introduction.html
         frontier = PriorityQueue()
         frontier.put(start, 0)
@@ -44,66 +50,71 @@ export function aStar<T>(
                 came_from[next] = current
     */
 
-    if (!vertices.has(source)) {
-        throw new Error("source is not a node in the graph");
+  if (!vertices.has(source)) {
+    throw new Error("source is not a node in the graph");
+  }
+
+  if (destination !== undefined && !vertices.has(destination)) {
+    throw new Error("destination is not a node in the graph");
+  }
+
+  if (source === destination) {
+    throw new Error(
+      "source and destination are the same, what are you searching for?"
+    );
+  }
+
+  const distance = new Map<T, number>([[source, 0]]);
+  const parent = new Map<T, T>();
+
+  const frontier = MinHeap.heapify(
+    ([, a], [, b]) => a - b,
+    makePair(source, 0)
+  );
+
+  while (!frontier.isEmpty) {
+    const [cur] = assertDefined(frontier.pop());
+
+    if (destination !== undefined && cur === destination) {
+      return { distance, parent };
     }
 
-    if (destination !== undefined && !vertices.has(destination)) {
-        throw new Error("destination is not a node in the graph");
+    for (const next of neighbours(cur)) {
+      const oldDist = distance.get(next);
+      const curDist = assertDefined(distance.get(cur));
+
+      const partDistance = weight(cur, next);
+      console.assert(partDistance !== undefined);
+      if (partDistance <= 0) {
+        throw new Error("weight must be positive (for progress to happen)");
+      }
+      const newDist = curDist + partDistance;
+
+      if (oldDist !== undefined && newDist >= oldDist) {
+        continue;
+      }
+
+      distance.set(next, newDist);
+      const estimate =
+        destination !== undefined ? heuristic(destination, next) : 0;
+
+      if (estimate < 0) {
+        throw new Error("heuristic estimate should be non-negative");
+      }
+
+      const priority = newDist + estimate;
+      frontier.add([next, priority]);
+      parent.set(next, cur);
     }
+  }
 
-    if (source === destination) {
-        console.assert(false, "source and destination are the same, what are you searching for?");
-        return undefined;
-    }
+  // return something when doing all-destination search
+  if (destination === undefined) {
+    return { distance, parent };
+  }
 
-    const distance = new Map<T, number>([[source, 0]]);
-    const parent = new Map<T, T>();
-
-    const frontier = MinHeap.heapify(([, a], [, b]) => a - b, makePair(source, 0));
-
-    while (!frontier.isEmpty) {
-        const [cur] = frontier.pop()!;
-        if (destination !== undefined && cur === destination) {
-            return { distance, parent };
-        }
-
-        for (const next of neighbours(cur)) {
-            const oldDist = distance.get(next);
-            const curDist = distance.get(cur)!;
-            console.assert(curDist !== undefined);
-
-            const partDistance = weight(cur, next);
-            console.assert(partDistance !== undefined);
-            if (partDistance <= 0) {
-                throw new Error("weight must be positive (for progress to happen)");
-            }
-            const newDist = curDist + partDistance;
-
-            if (oldDist !== undefined && newDist >= oldDist) {
-                continue;
-            }
-
-            distance.set(next, newDist);
-            const estimate = destination !== undefined ? heuristic(destination, next) : 0;
-
-            if (estimate < 0) {
-                throw new Error("heuristic estimate should be non-negative");
-            }
-
-            const priority = newDist + estimate;
-            frontier.add([next, priority]);
-            parent.set(next, cur);
-        }
-    }
-
-    // return something when doing all-destination search
-    if (destination === undefined) {
-        return { distance, parent };
-    }
-
-    // reach here when doing single-destination search but not found the destination
-    return undefined;
+  // reach here when doing single-destination search but not found the destination
+  return undefined;
 }
 
 /**
@@ -116,40 +127,51 @@ export function aStar<T>(
  * @param heuristic The heuristic function for A*
  */
 export function aStarAdjList<T>(
-    graph: AdjacencyList<T>,
-    weight: (u: T, v: T) => number,
-    source: T,
-    destination?: T,
-    heuristic: (u: T, v: T) => number = () => 0,
-) {
-    return aStar(
-        new Set(graph.keys()),
-        (u) => {
-            const edges = graph.get(u);
-            if (edges === undefined) {
-                throw new Error("Inconsistent graph -- graph should at least have an empty array for every vertices");
-            }
-            return edges;
-        },
-        weight, source, destination, heuristic);
+  graph: AdjacencyList<T>,
+  weight: (u: T, v: T) => number,
+  source: T,
+  destination?: T,
+  heuristic: (u: T, v: T) => number = () => 0
+): AStarResult<T> | undefined {
+  return aStar(
+    new Set(graph.keys()),
+    (u) => {
+      const edges = graph.get(u);
+      if (edges === undefined) {
+        throw new Error(
+          "Inconsistent graph -- graph should at least have an empty array for every vertices"
+        );
+      }
+      return edges;
+    },
+    weight,
+    source,
+    destination,
+    heuristic
+  );
 }
 
-export function extractPath<T>(parent: Map<T, T>, source: T, destination: T) {
-    let cur = destination;
-    const ret: T[] = [];
+export function extractPath<T>(
+  parent: Map<T, T>,
+  source: T,
+  destination: T
+): T[] | undefined {
+  let cur = destination;
+  const ret: T[] = [];
 
-    if (parent.get(cur) === undefined) {
-        return undefined;
-    }
+  if (parent.get(cur) === undefined) {
+    return undefined;
+  }
 
-    while (true) {
-        ret.push(cur);
-        if (cur === source) {
-            return ret;
-        }
-        cur = parent.get(cur)!;
-        if (cur === undefined) {
-            return undefined; // no valid path
-        }
+  for (;;) {
+    ret.push(cur);
+    if (cur === source) {
+      return ret;
     }
+    const temp = parent.get(cur);
+    if (temp === undefined) {
+      return undefined; // no valid path
+    }
+    cur = temp;
+  }
 }

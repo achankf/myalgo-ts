@@ -1,25 +1,28 @@
-import { toIt } from "../iter";
+import { MyIterator, toIt } from "../iter";
 
 /**
  *  Return a list of unique values from a sorted list of values
  * @param sortedVals a sorted list
  * @param cmp the comparator
  */
-export function uniq<T>(sortedVals: T[], cmp: (a: T, b: T) => number) {
-    return toIt(uniqHelper(sortedVals, cmp));
+export function uniq<T>(
+  sortedVals: T[],
+  cmp: (a: T, b: T) => number
+): MyIterator<T> {
+  return toIt(uniqHelper(sortedVals, cmp));
 }
 
 function* uniqHelper<T>(sortedVals: T[], cmp: (a: T, b: T) => number) {
-    if (sortedVals.length === 0) {
-        return;
-    }
+  if (sortedVals.length === 0) {
+    return;
+  }
 
-    let cur = sortedVals[0];
-    for (const val of sortedVals) {
-        if (cmp(val, cur) !== 0) {
-            yield cur;
-            cur = val;
-        }
+  let cur = sortedVals[0];
+  for (const val of sortedVals) {
+    if (cmp(val, cur) !== 0) {
+      yield cur;
+      cur = val;
     }
-    yield cur; // either the last value is unique, or the previous value is not unique but haven't reported
+  }
+  yield cur; // either the last value is unique, or the previous value is not unique but haven't reported
 }
